@@ -1,11 +1,27 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useMemo, type FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  Search,
+  Plus,
+  Filter,
+  ArrowUpDown,
+  LayoutGrid,
+  List,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  Circle,
+  Flag,
+} from 'lucide-react';
 import { api } from '../lib/api';
 
 type Priority = 'low' | 'medium' | 'high';
+type FilterStatus = 'all' | 'active' | 'completed';
+type SortBy = 'date' | 'priority' | 'title';
+type ViewMode = 'grid' | 'list';
 
 interface Task {
   id: number;
@@ -13,7 +29,6 @@ interface Task {
   description: string | null;
   completed: boolean;
   createdAt: string;
-  // Optional priority; when not present, treated as \"medium\" purely for UI coloring
   priority?: Priority;
 }
 
@@ -24,10 +39,18 @@ interface TaskFormValues {
 }
 
 const priorityColors: Record<Priority, string> = {
-  low: 'bg-emerald-500/80',
-  medium: 'bg-amber-400/80',
-  high: 'bg-red-500/80',
+  low: 'bg-emerald-500/80 text-emerald-950',
+  medium: 'bg-amber-400/80 text-amber-950',
+  high: 'bg-red-500/80 text-red-950',
 };
+
+const priorityBorder: Record<Priority, string> = {
+  low: 'border-l-emerald-500',
+  medium: 'border-l-amber-500',
+  high: 'border-l-red-500',
+};
+
+const priorityOrder: Record<Priority, number> = { low: 0, medium: 1, high: 2 };
 
 export const TasksPage = () => {
   const queryClient = useQueryClient();
@@ -41,6 +64,10 @@ export const TasksPage = () => {
     description: '',
     priority: 'medium',
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['tasks'],
@@ -255,24 +282,102 @@ export const TasksPage = () => {
     });
   };
 
-  const tasks = data ?? [];
+  const rawTasks = data ?? [];
+
+  const filteredAndSortedTasks = useMemo(() => {
+    let list = rawTasks.filter((task) => {
+      const matchSearch =
+        !searchQuery.trim() ||
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (task.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+      const matchStatus =
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && !task.completed) ||
+        (filterStatus === 'completed' && task.completed);
+      return matchSearch && matchStatus;
+    });
+    const p = (t: Task) => priorityOrder[t.priority ?? 'medium'];
+    if (sortBy === 'date') list = [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (sortBy === 'priority') list = [...list].sort((a, b) => p(b) - p(a));
+    if (sortBy === 'title') list = [...list].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }));
+    return list;
+  }, [rawTasks, searchQuery, filterStatus, sortBy]);
 
   return (
     <section className="flex w-full flex-col gap-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">Task dashboard</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Tasks</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Track your work and toggle completion in real time.
+            {filteredAndSortedTasks.length} of {rawTasks.length} task{rawTasks.length !== 1 ? 's' : ''}
           </p>
         </div>
         <button
           type="button"
           onClick={openAddModal}
-          className="rounded-full bg-sky-500 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-sky-500/40 transition hover:bg-sky-400"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:from-sky-600 hover:to-indigo-600"
         >
-          + Add task
+          <Plus className="h-4 w-4" />
+          Add task
         </button>
+      </div>
+
+      {/* Toolbar: search, filter, sort, view */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 shadow-sm">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400 shrink-0" />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm text-slate-700 dark:text-slate-200 focus:border-sky-500 outline-none"
+            aria-label="Filter tasks by status"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-4 w-4 text-slate-500 dark:text-slate-400 shrink-0" />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortBy)}
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm text-slate-700 dark:text-slate-200 focus:border-sky-500 outline-none"
+            aria-label="Sort tasks"
+          >
+            <option value="date">Newest first</option>
+            <option value="priority">Priority</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
+        <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-slate-100 dark:bg-slate-800">
+          <button
+            type="button"
+            onClick={() => setViewMode('grid')}
+            className={`rounded-md p-2 transition ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 shadow text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+            title="Grid view"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('list')}
+            className={`rounded-md p-2 transition ${viewMode === 'list' ? 'bg-white dark:bg-slate-700 shadow text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+            title="List view"
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -294,93 +399,107 @@ export const TasksPage = () => {
         </div>
       ) : error ? (
         <p className="text-red-600 dark:text-red-400">Failed to load tasks.</p>
-      ) : tasks.length === 0 ? (
+      ) : rawTasks.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900/60 px-6 py-16 text-center"
+          className="flex flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-6 py-16 text-center"
         >
-          <p className="text-lg font-medium text-slate-800 dark:text-slate-100">No tasks yet</p>
+          <p className="text-lg font-semibold text-slate-800 dark:text-slate-100">No tasks yet</p>
           <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
-            Create a task using the button above. Tasks support title, description, and priority.
+            Create your first task with the button above. Add a title, description, and priority.
           </p>
+          <button type="button" onClick={openAddModal} className="mt-4 rounded-xl bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600">
+            Add task
+          </button>
+        </motion.div>
+      ) : filteredAndSortedTasks.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 px-6 py-12 text-center"
+        >
+          <p className="font-medium text-slate-700 dark:text-slate-200">No tasks match your filters</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Try changing search, filter, or sort.</p>
         </motion.div>
       ) : (
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           <motion.ul
             layout
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.25 }}
-            className="grid gap-4 md:grid-cols-2"
+            initial={false}
+            className={viewMode === 'grid' ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col gap-3'}
           >
-            {tasks.map((task) => {
+            {filteredAndSortedTasks.map((task, index) => {
               const priority: Priority = task.priority ?? 'medium';
               const priorityLabel = priority.charAt(0).toUpperCase() + priority.slice(1);
+
+              const cardContent = (
+                <>
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggle(task)}
+                      className="shrink-0 mt-0.5 rounded-full p-0.5 transition hover:bg-slate-200 dark:hover:bg-slate-700"
+                      title={task.completed ? 'Mark incomplete' : 'Mark done'}
+                    >
+                      {task.completed ? (
+                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                      ) : (
+                        <Circle className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                      )}
+                    </button>
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-sm font-semibold text-slate-900 dark:text-slate-50 ${task.completed ? 'line-through opacity-70' : ''}`}>
+                        {task.title}
+                      </p>
+                      {task.description && (
+                        <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                          {task.description}
+                        </p>
+                      )}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold ${priorityColors[priority]}`}>
+                          <Flag className="h-3 w-3" />
+                          {priorityLabel}
+                        </span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-500">
+                          {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`flex items-center gap-1 shrink-0 ${viewMode === 'grid' ? 'mt-3 self-end' : ''}`}>
+                    <button
+                      type="button"
+                      onClick={() => openEditModal(task)}
+                      className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-sky-600 dark:hover:text-sky-400 transition"
+                      title="Edit"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openDeleteModal(task)}
+                      className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </>
+              );
 
               return (
                 <motion.li
                   key={task.id}
                   layout
-                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.25 }}
-                  className="flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-4 shadow-sm dark:shadow-slate-900/50"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.2, delay: index * 0.02 }}
+                  className={`flex rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-sm hover:shadow-md transition-shadow border-l-4 ${priorityBorder[priority]} ${viewMode === 'list' ? 'flex-row items-center justify-between gap-4 px-4 py-3' : 'flex-col p-4'}`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{task.title}</p>
-                      {task.description && (
-                        <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3">
-                          {task.description}
-                        </p>
-                      )}
-                      <p className="text-[11px] text-slate-500 dark:text-slate-500">
-                        Created{' '}
-                        {formatDistanceToNow(new Date(task.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-950 ${priorityColors[priority]}`}
-                      >
-                        {priorityLabel} priority
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleToggle(task)}
-                        className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium transition ${
-                          task.completed
-                            ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20'
-                            : 'border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700'
-                        }`}
-                      >
-                        <span
-                          className={`mr-1 h-2 w-2 rounded-full ${
-                            task.completed ? 'bg-emerald-400' : 'bg-slate-500'
-                          }`}
-                        />
-                        {task.completed ? 'Completed' : 'Mark done'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(task)}
-                        className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openDeleteModal(task)}
-                        className="text-[11px] text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                  {cardContent}
                 </motion.li>
               );
             })}
