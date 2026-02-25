@@ -131,7 +131,13 @@ const RootLayout = () => {
             </div>
           </div>
         </header>
-        <main className="mx-auto flex w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+        <main
+          className={
+            location.pathname === '/login' || location.pathname === '/register'
+              ? 'flex flex-1 flex-col min-h-0'
+              : 'mx-auto flex w-full max-w-6xl flex-1 px-4 py-6 sm:px-6'
+          }
+        >
           <Outlet />
         </main>
       </div>
