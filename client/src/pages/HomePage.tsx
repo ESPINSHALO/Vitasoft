@@ -67,7 +67,7 @@ export const HomePage = () => (
         </motion.p>
         <motion.div className="mt-8 flex flex-wrap gap-4" variants={fadeUp}>
           <Link
-            to="/register"
+            to="/login"
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:from-sky-600 hover:to-indigo-600 hover:shadow-sky-500/40"
           >
             Get started

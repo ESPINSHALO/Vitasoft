@@ -77,13 +77,13 @@ export const LoginPage = () => {
           </ul>
         </div>
         <p className="text-sm text-white/70">
-          Don&apos;t have an account?{' '}
+          New user?{' '}
           <button
             type="button"
             onClick={() => navigate('/register')}
             className="font-semibold text-white underline underline-offset-2 hover:no-underline"
           >
-            Create one
+            Sign up
           </button>
         </p>
       </div>
@@ -168,9 +168,9 @@ export const LoginPage = () => {
               </button>
 
               <p className="text-center text-sm text-slate-600 dark:text-slate-400 lg:hidden">
-                New here?{' '}
+                New user?{' '}
                 <button type="button" onClick={() => navigate('/register')} className="font-semibold text-sky-600 dark:text-sky-400 hover:underline">
-                  Create an account
+                  Sign up
                 </button>
               </p>
             </motion.form>

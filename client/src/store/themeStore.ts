@@ -12,8 +12,9 @@ const THEME_KEY = 'vitasoft_theme';
 const getInitialTheme = (): Theme => {
   if (typeof window === 'undefined') return 'dark';
   const stored = window.localStorage.getItem(THEME_KEY) as Theme | null;
-  if (stored === 'light' || stored === 'dark') return stored;
-  return 'dark';
+  const theme: Theme = stored === 'light' || stored === 'dark' ? stored : 'dark';
+  document.documentElement.classList.toggle('dark', theme === 'dark');
+  return theme;
 };
 
 export const useThemeStore = create<ThemeState>((set) => ({
