@@ -1,9 +1,12 @@
+export type Priority = 'low' | 'medium' | 'high';
+
 /**
  * Payload required to create a new task.
  */
 export interface TaskCreateDto {
   title: string;
   description?: string | null;
+  priority?: Priority;
 }
 
 /**
@@ -13,6 +16,7 @@ export interface TaskUpdateDto {
   title?: string;
   description?: string | null;
   completed?: boolean;
+  priority?: Priority;
 }
 
 /**
@@ -23,6 +27,7 @@ export interface TaskResponseDto {
   title: string;
   description: string | null;
   completed: boolean;
+  priority: Priority;
   createdAt: string;
   userId: number;
 }

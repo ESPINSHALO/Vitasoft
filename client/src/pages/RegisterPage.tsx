@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { api } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,9 +34,11 @@ export const RegisterPage = () => {
     try {
       setIsSubmitting(true);
       await api.post('/api/auth/register', { email, password });
+      toast.success('Account created. Sign in to continue.');
       navigate('/login');
     } catch (err) {
       setError('Registration failed. Try a different email.');
+      toast.error('Registration failed');
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -43,16 +46,16 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-500 via-indigo-500 to-slate-900 px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-400 via-indigo-400 to-slate-800 dark:from-sky-500 dark:via-indigo-500 dark:to-slate-900 px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="w-full max-w-md rounded-3xl border border-slate-100/10 bg-slate-900/40 p-8 shadow-xl backdrop-blur-xl"
+        className="w-full max-w-md rounded-3xl border border-slate-200/80 dark:border-slate-100/10 bg-white/90 dark:bg-slate-900/40 p-8 shadow-xl backdrop-blur-xl"
       >
         <div className="mb-6 text-center">
-          <h2 className="text-2xl font-semibold text-slate-50">Create an account</h2>
-          <p className="mt-2 text-sm text-slate-300">
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-50">Create an account</h2>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
             Sign up to start managing your tasks.
           </p>
         </div>

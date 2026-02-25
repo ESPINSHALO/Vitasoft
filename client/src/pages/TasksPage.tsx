@@ -55,6 +55,7 @@ export const TasksPage = () => {
       const res = await api.post<Task>('/tasks', {
         title: values.title,
         description: values.description || null,
+        priority: values.priority,
       });
       return res.data;
     },
@@ -96,6 +97,7 @@ export const TasksPage = () => {
       if (values.title !== undefined) payload.title = values.title;
       if (values.description !== undefined) payload.description = values.description;
       if (values.completed !== undefined) payload.completed = values.completed;
+      if (values.priority !== undefined) payload.priority = values.priority;
       await api.put(`/tasks/${id}`, payload);
     },
     onMutate: async ({ id, values }) => {
@@ -111,6 +113,7 @@ export const TasksPage = () => {
                 values.description !== undefined ? values.description : task.description,
               completed:
                 values.completed !== undefined ? values.completed : task.completed,
+              priority: values.priority ?? task.priority,
             }
           : task,
       );
@@ -228,10 +231,15 @@ export const TasksPage = () => {
         values: {
           title: formValues.title,
           description: formValues.description,
+          priority: formValues.priority,
         },
       },
       {
-        onSuccess: () => setIsEditOpen(false),
+        onSuccess: () => {
+          setIsEditOpen(false);
+          toast.success('Task updated');
+        },
+        onError: () => toast.error('Failed to update task'),
       },
     );
   };
@@ -253,8 +261,8 @@ export const TasksPage = () => {
     <section className="flex w-full flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-50">Task dashboard</h2>
-          <p className="text-sm text-slate-400">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">Task dashboard</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Track your work and toggle completion in real time.
           </p>
         </div>
@@ -272,30 +280,29 @@ export const TasksPage = () => {
           {Array.from({ length: 4 }).map((_, idx) => (
             <div
               key={idx}
-              className="animate-pulse rounded-2xl border border-slate-800 bg-slate-900/70 p-4"
+              className="animate-pulse rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/70 p-4"
             >
-              <div className="mb-3 h-4 w-2/3 rounded bg-slate-700" />
-              <div className="mb-2 h-3 w-full rounded bg-slate-800" />
-              <div className="mb-4 h-3 w-5/6 rounded bg-slate-800" />
+              <div className="mb-3 h-4 w-2/3 rounded bg-slate-300 dark:bg-slate-700" />
+              <div className="mb-2 h-3 w-full rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="mb-4 h-3 w-5/6 rounded bg-slate-200 dark:bg-slate-800" />
               <div className="flex justify-between">
-                <div className="h-4 w-20 rounded-full bg-slate-800" />
-                <div className="h-4 w-16 rounded-full bg-slate-800" />
+                <div className="h-4 w-20 rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-16 rounded-full bg-slate-200 dark:bg-slate-800" />
               </div>
             </div>
           ))}
         </div>
       ) : error ? (
-        <p className="text-red-400">Failed to load tasks.</p>
+        <p className="text-red-600 dark:text-red-400">Failed to load tasks.</p>
       ) : tasks.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700/80 bg-slate-900/60 px-6 py-16 text-center"
+          className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900/60 px-6 py-16 text-center"
         >
-          <p className="text-lg font-medium text-slate-100">No tasks yet</p>
-          <p className="mt-2 max-w-md text-sm text-slate-400">
-            Create tasks via the API or backend and they will show up here with live status and
-            priority indicators.
+          <p className="text-lg font-medium text-slate-800 dark:text-slate-100">No tasks yet</p>
+          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+            Create a task using the button above. Tasks support title, description, and priority.
           </p>
         </motion.div>
       ) : (
@@ -319,17 +326,17 @@ export const TasksPage = () => {
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.25 }}
-                  className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm shadow-slate-900/50"
+                  className="flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-4 shadow-sm dark:shadow-slate-900/50"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-50">{task.title}</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{task.title}</p>
                       {task.description && (
-                        <p className="text-xs text-slate-300 line-clamp-3">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3">
                           {task.description}
                         </p>
                       )}
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-500">
                         Created{' '}
                         {formatDistanceToNow(new Date(task.createdAt), {
                           addSuffix: true,
@@ -347,8 +354,8 @@ export const TasksPage = () => {
                         onClick={() => handleToggle(task)}
                         className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium transition ${
                           task.completed
-                            ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
-                            : 'border-slate-600 bg-slate-800 text-slate-200 hover:bg-slate-700'
+                            ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20'
+                            : 'border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700'
                         }`}
                       >
                         <span
@@ -361,14 +368,14 @@ export const TasksPage = () => {
                       <button
                         type="button"
                         onClick={() => openEditModal(task)}
-                        className="text-[11px] text-slate-400 hover:text-slate-200"
+                        className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => openDeleteModal(task)}
-                        className="text-[11px] text-red-400 hover:text-red-300"
+                        className="text-[11px] text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                       >
                         Delete
                       </button>
@@ -388,19 +395,19 @@ export const TasksPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm"
+            className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/60 backdrop-blur-sm"
           >
             <motion.div
               initial={{ opacity: 0, y: 16, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.97 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/95 p-6 shadow-xl"
+              className="w-full max-w-md rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/95 p-6 shadow-xl"
             >
-              <h3 className="text-lg font-semibold text-slate-50">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 {isEditOpen ? 'Edit task' : 'Add task'}
               </h3>
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                 {isEditOpen
                   ? 'Update the details for this task.'
                   : 'Create a new task to track.'}
@@ -411,19 +418,19 @@ export const TasksPage = () => {
                 className="mt-4 space-y-4"
               >
                 <div className="space-y-1">
-                  <label className="block text-xs font-medium text-slate-200" htmlFor="title">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-200" htmlFor="title">
                     Title
                   </label>
                   <input
                     id="title"
                     value={formValues.title}
                     onChange={(e) => handleFormChange('title', e.target.value)}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
                   />
                 </div>
                 <div className="space-y-1">
                   <label
-                    className="block text-xs font-medium text-slate-200"
+                    className="block text-xs font-medium text-slate-700 dark:text-slate-200"
                     htmlFor="description"
                   >
                     Description
@@ -433,18 +440,18 @@ export const TasksPage = () => {
                     rows={3}
                     value={formValues.description}
                     onChange={(e) => handleFormChange('description', e.target.value)}
-                    className="w-full resize-none rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
+                    className="w-full resize-none rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-xs font-medium text-slate-200" htmlFor="priority">
-                    Priority (visual only)
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-200" htmlFor="priority">
+                    Priority
                   </label>
                   <select
                     id="priority"
                     value={formValues.priority}
                     onChange={(e) => handleFormChange('priority', e.target.value)}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -459,7 +466,7 @@ export const TasksPage = () => {
                       setIsAddOpen(false);
                       setIsEditOpen(false);
                     }}
-                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800"
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
                   >
                     Cancel
                   </button>
@@ -483,17 +490,17 @@ export const TasksPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm"
+            className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/60 backdrop-blur-sm"
           >
             <motion.div
               initial={{ opacity: 0, y: 16, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.97 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900/95 p-6 shadow-xl"
+              className="w-full max-w-sm rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/95 p-6 shadow-xl"
             >
-              <h3 className="text-lg font-semibold text-slate-50">Delete task</h3>
-              <p className="mt-2 text-sm text-slate-300">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Delete task</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 Are you sure you want to delete{' '}
                 <span className="font-semibold">{activeTask.title}</span>? This action cannot be
                 undone.
@@ -502,7 +509,7 @@ export const TasksPage = () => {
                 <button
                   type="button"
                   onClick={() => setIsDeleteOpen(false)}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800"
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
                 >
                   Cancel
                 </button>

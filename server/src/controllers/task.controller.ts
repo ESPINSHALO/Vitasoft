@@ -1,7 +1,13 @@
 import type { NextFunction, Response } from 'express';
 import prisma from '../prisma';
 import type { AuthenticatedRequest } from '../middleware/auth.middleware';
-import type { TaskCreateDto, TaskUpdateDto, TaskResponseDto } from '../types/task';
+import type { TaskCreateDto, TaskUpdateDto, TaskResponseDto, Priority } from '../types/task';
+
+const VALID_PRIORITIES: Priority[] = ['low', 'medium', 'high'];
+
+function isPriority(value: unknown): value is Priority {
+  return typeof value === 'string' && VALID_PRIORITIES.includes(value as Priority);
+}
 
 /**
  * Handlers for CRUD operations on tasks owned by the authenticated user.
@@ -13,7 +19,7 @@ export const createTask = async (
 ) => {
   try {
     const userId = req.userId;
-    const { title, description } = req.body as TaskCreateDto;
+    const { title, description, priority } = req.body as TaskCreateDto;
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' } as never);
@@ -23,10 +29,15 @@ export const createTask = async (
       return res.status(400).json({ message: 'Title is required' } as never);
     }
 
+    if (priority !== undefined && !isPriority(priority)) {
+      return res.status(400).json({ message: 'Priority must be low, medium, or high' } as never);
+    }
+
     const task = await prisma.task.create({
       data: {
         title: title.trim(),
         description: description ?? null,
+        priority: priority ?? 'medium',
         userId,
       },
     });
@@ -36,6 +47,7 @@ export const createTask = async (
       title: task.title,
       description: task.description,
       completed: task.completed,
+      priority: task.priority as Priority,
       createdAt: task.createdAt.toISOString(),
       userId: task.userId,
     });
@@ -66,6 +78,7 @@ export const getTasks = async (
       title: string;
       description: string | null;
       completed: boolean;
+      priority: string;
       createdAt: Date;
       userId: number;
     }) => ({
@@ -73,6 +86,7 @@ export const getTasks = async (
       title: task.title,
       description: task.description,
       completed: task.completed,
+      priority: (task.priority ?? 'medium') as Priority,
       createdAt: task.createdAt.toISOString(),
       userId: task.userId,
     }));
@@ -113,6 +127,7 @@ export const getTaskById = async (
       title: task.title,
       description: task.description,
       completed: task.completed,
+      priority: (task.priority ?? 'medium') as Priority,
       createdAt: task.createdAt.toISOString(),
       userId: task.userId,
     });
@@ -129,7 +144,7 @@ export const updateTask = async (
   try {
     const userId = req.userId;
     const taskId = Number(req.params.id);
-    const { title, description, completed } = req.body as TaskUpdateDto;
+    const { title, description, completed, priority } = req.body as TaskUpdateDto;
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' } as never);
@@ -149,6 +164,10 @@ export const updateTask = async (
         .json({ message: 'Completed, if provided, must be a boolean' } as never);
     }
 
+    if (priority !== undefined && !isPriority(priority)) {
+      return res.status(400).json({ message: 'Priority must be low, medium, or high' } as never);
+    }
+
     const existing = await prisma.task.findFirst({ where: { id: taskId, userId } });
 
     if (!existing) {
@@ -161,6 +180,7 @@ export const updateTask = async (
         title: title !== undefined ? title.trim() : existing.title,
         description: description ?? existing.description,
         completed: typeof completed === 'boolean' ? completed : existing.completed,
+        priority: priority ?? existing.priority,
       },
     });
 
@@ -169,6 +189,7 @@ export const updateTask = async (
       title: task.title,
       description: task.description,
       completed: task.completed,
+      priority: (task.priority ?? 'medium') as Priority,
       createdAt: task.createdAt.toISOString(),
       userId: task.userId,
     });

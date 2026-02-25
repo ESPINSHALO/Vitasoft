@@ -2,8 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -19,12 +18,19 @@ model User {
   tasks    Task[]
 }
 
+enum Priority {
+  low
+  medium
+  high
+}
+
 model Task {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String?
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  completed   Boolean   @default(false)
+  priority    Priority  @default(medium)
+  createdAt   DateTime  @default(now())
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -51,6 +51,7 @@ const swaggerDocument: OpenAPIV3_1.Document = {
           title: { type: 'string' },
           description: { type: ['string', 'null'] },
           completed: { type: 'boolean' },
+          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
           createdAt: { type: 'string', format: 'date-time' },
           userId: { type: 'integer' },
         },
@@ -61,6 +62,7 @@ const swaggerDocument: OpenAPIV3_1.Document = {
         properties: {
           title: { type: 'string' },
           description: { type: ['string', 'null'] },
+          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
         },
       },
       TaskUpdateRequest: {
@@ -69,6 +71,7 @@ const swaggerDocument: OpenAPIV3_1.Document = {
           title: { type: 'string' },
           description: { type: ['string', 'null'] },
           completed: { type: 'boolean' },
+          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
         },
       },
       ErrorResponse: {
