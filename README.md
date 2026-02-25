@@ -4,43 +4,47 @@ A modern, full-stack TypeScript application for managing tasks with authenticati
 
 ## 📋 Project Overview
 
-Vitasoft is a task management platform that enables users to create, organize, and track their tasks efficiently. The application features secure authentication, real-time task updates, and a responsive design that works seamlessly across desktop and mobile devices.
+Vitasoft is a task management application I built to help users stay organized and productive. It lets you create tasks, set priorities, mark them complete, and find what you need quickly with search and filtering. The app includes secure user authentication, so each person has their own private task list.
 
-The project follows a clean architecture pattern with clear separation between client and server, ensuring maintainability and scalability.
+I designed it with a clean split between the frontend and backend, making it easier to maintain and extend over time. Everything is built with TypeScript for better reliability and developer experience.
 
 ## ✨ Features
 
 ### Authentication & Security
-- User registration and login with JWT-based authentication
-- Password hashing using bcrypt
-- Protected routes with middleware-based authorization
-- Automatic token refresh and logout handling
-- Secure session management with localStorage persistence
+- User registration and login with secure JWT tokens
+- Passwords are hashed with bcrypt before storage
+- Protected routes that require authentication
+- Automatic logout handling when tokens expire
+- Secure token storage in browser localStorage
 
 ### Task Management
 - Create, read, update, and delete tasks
 - Mark tasks as completed with optimistic UI updates
 - Task descriptions and creation timestamps
 - Visual priority indicators (low, medium, high)
+- Search tasks by title or description
+- Filter tasks by status (all, active, completed)
+- Sort tasks by date, priority, or title
+- Toggle between grid and list view layouts
 - Real-time task list updates using React Query
 - Empty state handling for better UX
 
 ### User Interface
-- Modern glassmorphism design with gradient backgrounds
-- Dark/light theme toggle with persistent preferences
-- Smooth page transitions using Framer Motion
-- Loading skeletons for better perceived performance
-- Toast notifications for user feedback
-- Responsive design optimized for mobile and desktop
-- Collapsible sidebar navigation for mobile devices
-- Touch-friendly button sizes and interactions
+- Clean, modern design with gradient backgrounds and smooth animations
+- Dark and light theme toggle that remembers your preference
+- Smooth page transitions and micro-interactions
+- Loading states with skeleton screens for better perceived performance
+- Toast notifications for immediate feedback on actions
+- Fully responsive layout that works great on phones, tablets, and desktops
+- Collapsible sidebar navigation for smaller screens
+- Touch-friendly controls optimized for mobile use
 
 ### Developer Experience
-- Comprehensive API documentation with Swagger/OpenAPI
-- TypeScript throughout for type safety
-- Strict TypeScript configuration
-- Hot module replacement for fast development
-- Optimistic UI updates for instant feedback
+- Complete API documentation available through Swagger UI
+- Full TypeScript coverage for catching errors early
+- Strict TypeScript settings for maximum type safety
+- Hot reloading for instant feedback during development
+- Optimistic UI updates so the interface feels instant
 
 ## 🛠 Tech Stack
 
@@ -56,6 +60,7 @@ The project follows a clean architecture pattern with clear separation between c
 - **Framer Motion** - Animation library for smooth UI transitions
 - **date-fns** - Date utility library for formatting timestamps
 - **Sonner** - Toast notification system
+- **Lucide React** - Icon library providing consistent, customizable icons
 
 ### Backend
 - **Node.js** - JavaScript runtime environment
@@ -231,10 +236,8 @@ All endpoints are documented with:
 ## 🔮 Future Improvements
 
 ### Short-term Enhancements
-- **Task Filtering & Sorting** - Add filters for completed/pending tasks and sorting options (date, priority, alphabetical)
 - **Task Categories/Tags** - Allow users to organize tasks with custom categories or tags
 - **Due Dates** - Add due date functionality with reminders and notifications
-- **Task Search** - Implement full-text search across task titles and descriptions
 - **Bulk Operations** - Enable selecting and performing actions on multiple tasks simultaneously
 
 ### Medium-term Features
@@ -310,4 +313,4 @@ ISC License - See LICENSE file for details
 
 ## 🙏 Acknowledgments
 
-Built with modern web technologies and best practices. Special thanks to the open-source community for the excellent tools and libraries that made this project possible.
+This project wouldn't be possible without the amazing open-source tools and libraries available today. Thanks to everyone who builds and maintains these projects that make development so much more enjoyable.
