@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: add .dark on html to toggle (Tailwind v4) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html {
     scroll-behavior: smooth;
