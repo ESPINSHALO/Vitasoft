@@ -18,6 +18,7 @@ import {
   Calendar,
   AlertCircle,
   Clock,
+  Copy,
 } from 'lucide-react';
 import { api } from '../lib/api';
 
@@ -74,12 +75,41 @@ const priorityBorder: Record<Priority, string> = {
 
 const priorityOrder: Record<Priority, number> = { low: 0, medium: 1, high: 2 };
 
+const SIMILARITY_WORD_OVERLAP_THRESHOLD = 0.6;
+
+function normalizeTitle(s: string): string {
+  return s.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function areTitlesSimilar(newTitle: string, existingTitle: string): boolean {
+  const a = normalizeTitle(newTitle);
+  const b = normalizeTitle(existingTitle);
+  if (!a) return false;
+  if (a === b) return true;
+  if (a.length >= 2 && b.length >= 2 && (a.includes(b) || b.includes(a))) return true;
+  const wordsA = a.split(' ').filter(Boolean);
+  const wordsB = b.split(' ').filter(Boolean);
+  if (wordsA.length === 0 || wordsB.length === 0) return false;
+  const matchCount = wordsA.filter((w) => wordsB.includes(w)).length;
+  const ratio = matchCount / Math.min(wordsA.length, wordsB.length);
+  return ratio >= SIMILARITY_WORD_OVERLAP_THRESHOLD;
+}
+
+function findSimilarTasks(newTitle: string, tasks: Task[]): Task[] {
+  const normalized = normalizeTitle(newTitle);
+  if (!normalized) return [];
+  return tasks.filter((task) => areTitlesSimilar(newTitle, task.title));
+}
+
 export const TasksPage = () => {
   const queryClient = useQueryClient();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDuplicateWarningOpen, setIsDuplicateWarningOpen] = useState(false);
+  const [pendingCreateValues, setPendingCreateValues] = useState<TaskFormValues | null>(null);
+  const [similarTasksForWarning, setSimilarTasksForWarning] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [formValues, setFormValues] = useState<TaskFormValues>({
     title: '',
@@ -281,13 +311,39 @@ export const TasksPage = () => {
     e.preventDefault();
     if (!formValues.title.trim()) return;
     if (!isDueDateValid(formValues.dueDate)) return;
-    createMutation.mutate(formValues, {
+    const tasks = queryClient.getQueryData<Task[]>(['tasks']) ?? [];
+    const similar = findSimilarTasks(formValues.title, tasks);
+    if (similar.length > 0) {
+      setPendingCreateValues({ ...formValues });
+      setSimilarTasksForWarning(similar);
+      setIsDuplicateWarningOpen(true);
+      return;
+    }
+    doCreateTask(formValues);
+  };
+
+  const doCreateTask = (values: TaskFormValues) => {
+    createMutation.mutate(values, {
       onSuccess: () => {
         setIsAddOpen(false);
+        setIsDuplicateWarningOpen(false);
+        setPendingCreateValues(null);
+        setSimilarTasksForWarning([]);
         toast.success('Task created');
       },
       onError: () => toast.error('Failed to create task'),
     });
+  };
+
+  const handleCreateAnyway = () => {
+    if (!pendingCreateValues) return;
+    doCreateTask(pendingCreateValues);
+  };
+
+  const handleCancelDuplicateWarning = () => {
+    setIsDuplicateWarningOpen(false);
+    setPendingCreateValues(null);
+    setSimilarTasksForWarning([]);
   };
 
   const handleEditSubmit = (e: FormEvent) => {
@@ -728,6 +784,70 @@ export const TasksPage = () => {
                   className="rounded-lg bg-red-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-red-400"
                 >
                   Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Duplicate task warning */}
+      <AnimatePresence>
+        {isDuplicateWarningOpen && pendingCreateValues && similarTasksForWarning.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.97 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-md rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/95 p-6 shadow-xl"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                  <Copy className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    Similar tasks found
+                  </h3>
+                  <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
+                    These tasks look similar to &ldquo;{pendingCreateValues.title}&rdquo;
+                  </p>
+                </div>
+              </div>
+              <ul className="mt-4 max-h-40 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-2 px-3 space-y-1">
+                {similarTasksForWarning.map((task) => (
+                  <li
+                    key={task.id}
+                    className="text-sm text-slate-700 dark:text-slate-300 truncate"
+                    title={task.title}
+                  >
+                    {task.title}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                Create anyway or cancel to edit your title.
+              </p>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancelDuplicateWarning}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateAnyway}
+                  className="rounded-lg bg-sky-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-sky-400"
+                >
+                  Create anyway
                 </button>
               </div>
             </motion.div>

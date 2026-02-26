@@ -65,6 +65,9 @@ export const createTask = async (
         action: 'created',
         taskId: task.id,
         taskTitle: task.title,
+        taskDescription: task.description,
+        taskDueDate: task.dueDate,
+        taskCompleted: task.completed,
       },
     });
 
@@ -234,6 +237,9 @@ export const updateTask = async (
         action: activityAction,
         taskId: task.id,
         taskTitle: task.title,
+        taskDescription: task.description,
+        taskDueDate: task.dueDate,
+        taskCompleted: task.completed,
       },
     });
 
@@ -281,6 +287,9 @@ export const deleteTask = async (
         action: 'deleted',
         taskId: existing.id,
         taskTitle: existing.title,
+        taskDescription: existing.description,
+        taskDueDate: existing.dueDate,
+        taskCompleted: existing.completed,
       },
     });
 

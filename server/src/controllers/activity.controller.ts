@@ -9,6 +9,9 @@ function toDto(log: {
   action: string;
   taskId: number | null;
   taskTitle: string | null;
+  taskDescription: string | null;
+  taskDueDate: Date | null;
+  taskCompleted: boolean | null;
   createdAt: Date;
 }): ActivityLogResponseDto {
   return {
@@ -17,6 +20,9 @@ function toDto(log: {
     action: log.action as ActivityAction,
     taskId: log.taskId,
     taskTitle: log.taskTitle,
+    taskDescription: log.taskDescription,
+    taskDueDate: log.taskDueDate ? log.taskDueDate.toISOString() : null,
+    taskCompleted: log.taskCompleted,
     createdAt: log.createdAt.toISOString(),
   };
 }

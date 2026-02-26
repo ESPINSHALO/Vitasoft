@@ -38,12 +38,15 @@ model Task {
 }
 
 model ActivityLog {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  action     String   // 'created' | 'updated' | 'completed' | 'deleted'
-  taskId     Int?
-  taskTitle  String?
-  createdAt  DateTime  @default(now())
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  action          String   // 'created' | 'updated' | 'completed' | 'deleted'
+  taskId          Int?
+  taskTitle       String?
+  taskDescription String?
+  taskDueDate     DateTime?
+  taskCompleted   Boolean?
+  createdAt       DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

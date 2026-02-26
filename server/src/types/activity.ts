@@ -6,5 +6,8 @@ export interface ActivityLogResponseDto {
   action: ActivityAction;
   taskId: number | null;
   taskTitle: string | null;
+  taskDescription: string | null;
+  taskDueDate: string | null;
+  taskCompleted: boolean | null;
   createdAt: string;
 }
