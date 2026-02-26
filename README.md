@@ -21,6 +21,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 - Create, read, update, and delete tasks
 - Mark tasks as completed with optimistic UI updates
 - Task descriptions and creation timestamps
+- **Due dates** – set an expected completion date on any task. The app shows “Due soon” when the date is within 48 hours and “Overdue” when it’s past. Remaining time is shown with a clear countdown (e.g. “in 5 days”).
 - Visual priority indicators (low, medium, high)
 - Search tasks by title or description
 - Filter tasks by status (all, active, completed)
@@ -28,6 +29,10 @@ I designed it with a clean split between the frontend and backend, making it eas
 - Toggle between grid and list view layouts
 - Real-time task list updates using React Query
 - Empty state handling for better UX
+
+### Activity History
+- **Activity timeline** – every create, update, complete, and delete is logged. Open the Activity page from the sidebar to see a chronological list.
+- **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when.
 
 ### User Interface
 - Clean, modern design with gradient backgrounds and smooth animations
@@ -237,7 +242,6 @@ All endpoints are documented with:
 
 ### Short-term Enhancements
 - **Task Categories/Tags** - Allow users to organize tasks with custom categories or tags
-- **Due Dates** - Add due date functionality with reminders and notifications
 - **Bulk Operations** - Enable selecting and performing actions on multiple tasks simultaneously
 
 ### Medium-term Features
@@ -245,7 +249,6 @@ All endpoints are documented with:
 - **Task Sharing** - Enable sharing tasks between users with permission levels
 - **File Attachments** - Support attaching files or images to tasks
 - **Task Comments** - Add commenting system for collaboration on tasks
-- **Activity Log** - Track and display task modification history
 
 ### Long-term Vision
 - **Team Workspaces** - Multi-user workspaces with role-based access control
