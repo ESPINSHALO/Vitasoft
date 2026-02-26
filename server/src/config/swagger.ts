@@ -52,6 +52,7 @@ const swaggerDocument: OpenAPIV3_1.Document = {
           description: { type: ['string', 'null'] },
           completed: { type: 'boolean' },
           priority: { type: 'string', enum: ['low', 'medium', 'high'] },
+          dueDate: { type: ['string', 'null'], format: 'date-time' },
           createdAt: { type: 'string', format: 'date-time' },
           userId: { type: 'integer' },
         },
@@ -234,6 +235,37 @@ const swaggerDocument: OpenAPIV3_1.Document = {
           schema: { type: 'integer' },
         },
       ],
+      get: {
+        tags: ['Tasks'],
+        summary: 'Get a single task',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Task found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Task' },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          '404': {
+            description: 'Task not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
       put: {
         tags: ['Tasks'],
         summary: 'Update a task',

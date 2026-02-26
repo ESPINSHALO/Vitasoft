@@ -29,9 +29,8 @@ export const LoginPage = () => {
       login({ token: res.data.token, user: { id: null, email } });
       toast.success('Welcome back');
       navigate('/tasks');
-    } catch (err) {
+    } catch {
       setError('Invalid credentials');
-      console.error(err);
       toast.error('Login failed');
     } finally {
       setIsSubmitting(false);

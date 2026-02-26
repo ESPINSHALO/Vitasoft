@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createBrowserRouter, Outlet, Link, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, Link, NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   ListTodo,
@@ -13,14 +13,8 @@ import {
   ChevronRight,
   History,
 } from 'lucide-react';
-import { HomePage } from '../pages/HomePage';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { TasksPage } from '../pages/TasksPage';
-import { ActivityPage } from '../pages/ActivityPage';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
-import { RedirectIfAuth, RequireAuth } from './guards';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
@@ -29,7 +23,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
   }`;
 
-const RootLayout = () => {
+export const RootLayout = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -211,46 +205,3 @@ const RootLayout = () => {
     </div>
   );
 };
-
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <HomePage /> },
-      {
-        path: 'login',
-        element: (
-          <RedirectIfAuth>
-            <LoginPage />
-          </RedirectIfAuth>
-        ),
-      },
-      {
-        path: 'register',
-        element: (
-          <RedirectIfAuth>
-            <RegisterPage />
-          </RedirectIfAuth>
-        ),
-      },
-      {
-        path: 'tasks',
-        element: (
-          <RequireAuth>
-            <TasksPage />
-          </RequireAuth>
-        ),
-      },
-      {
-        path: 'activity',
-        element: (
-          <RequireAuth>
-            <ActivityPage />
-          </RequireAuth>
-        ),
-      },
-    ],
-  },
-]);
-

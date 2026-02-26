@@ -382,7 +382,7 @@ export const TasksPage = () => {
     });
   };
 
-  const rawTasks = data ?? [];
+  const rawTasks = useMemo(() => data ?? [], [data]);
 
   const filteredAndSortedTasks = useMemo(() => {
     let list = rawTasks.filter((task) => {
