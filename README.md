@@ -32,7 +32,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 - Empty state handling for better UX
 
 ### Activity History
-- **Activity timeline** – every create, update, complete, and delete is logged. Open the Activity page from the sidebar to see a chronological list.
+- **Activity timeline** – every create, update, complete, and delete is logged. Open the **Activity** page from the sidebar (when the app is running at the client URL) to see a chronological list. The data is served from the same server (e.g. `GET http://localhost:4000/activity` when logged in).
 - **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when. The app stores a snapshot of the task at the time of the action, so you still see full details even for tasks that were later deleted.
 
 ### User Interface
@@ -117,7 +117,7 @@ npx prisma migrate dev
 npm run dev
 ```
 
-The server will run on `http://localhost:4000` by default.
+The server will run on **http://localhost:4000** by default. That’s also where the API and Swagger docs live (see [API Documentation](#-api-documentation) below).
 
 ### Frontend Setup
 
@@ -138,7 +138,9 @@ npm install
 npm run dev
 ```
 
-The client will run on `http://localhost:5173` by default.
+The client will run on **http://localhost:5173** by default (Vite may use another port, e.g. 5174, if 5173 is in use; check the terminal output).
+
+**Using the app:** Open the client URL in your browser (e.g. http://localhost:5173). After logging in you’ll see the **Tasks** page (with due dates, duplicate detection, and due-soon/overdue labels), the **Activity** page in the sidebar (timeline of create/update/complete/delete with expandable details), and the **due task notification** bell in the header (overdue, due today, due within 48 hours). The API and Swagger UI are on the server URL (http://localhost:4000 and http://localhost:4000/api-docs).
 
 ### Production Build
 
@@ -184,9 +186,10 @@ VITE_API_URL=http://localhost:4000
 
 ## 📚 API Documentation
 
-Interactive API documentation is available via Swagger UI when the server is running:
+Interactive API documentation is available via Swagger UI when the server is running at **http://localhost:4000**:
 
-**URL:** `http://localhost:4000/api-docs`
+- **Swagger UI:** http://localhost:4000/api-docs  
+- **API base:** http://localhost:4000 (auth at `/api/auth`, tasks at `/tasks`, activity at `/activity`)
 
 The Swagger interface provides:
 - Complete endpoint documentation
