@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
+import { DueTaskNotification } from '../components/DueTaskNotification';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
@@ -114,6 +115,7 @@ export const RootLayout = () => {
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
+            <DueTaskNotification />
             <button
               type="button"
               onClick={toggleTheme}
