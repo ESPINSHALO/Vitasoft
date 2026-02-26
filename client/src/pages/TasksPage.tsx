@@ -2,7 +2,7 @@ import { useState, useMemo, type FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, formatDistanceStrict, isPast, differenceInHours } from 'date-fns';
 import {
   Search,
   Plus,
@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   Circle,
   Flag,
+  Calendar,
+  AlertCircle,
+  Clock,
 } from 'lucide-react';
 import { api } from '../lib/api';
 
@@ -29,6 +32,7 @@ interface Task {
   description: string | null;
   completed: boolean;
   createdAt: string;
+  dueDate?: string | null;
   priority?: Priority;
 }
 
@@ -36,6 +40,24 @@ interface TaskFormValues {
   title: string;
   description: string;
   priority: Priority;
+  dueDate: string;
+}
+
+const DUE_SOON_HOURS = 48;
+
+function getDueDateStatus(dueDate: string | null | undefined, completed: boolean): { status: 'overdue' | 'due_soon' | 'ok'; label: string } | null {
+  if (!dueDate || completed) return null;
+  const date = new Date(dueDate);
+  if (Number.isNaN(date.getTime())) return null;
+  const now = new Date();
+  if (isPast(date)) {
+    return { status: 'overdue', label: 'Overdue' };
+  }
+  const hoursLeft = differenceInHours(date, now);
+  if (hoursLeft <= DUE_SOON_HOURS) {
+    return { status: 'due_soon', label: 'Due soon' };
+  }
+  return { status: 'ok', label: formatDistanceStrict(now, date, { addSuffix: true }) };
 }
 
 const priorityColors: Record<Priority, string> = {
@@ -63,6 +85,7 @@ export const TasksPage = () => {
     title: '',
     description: '',
     priority: 'medium',
+    dueDate: '',
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
@@ -83,6 +106,7 @@ export const TasksPage = () => {
         title: values.title,
         description: values.description || null,
         priority: values.priority,
+        dueDate: values.dueDate ? values.dueDate : null,
       });
       return res.data;
     },
@@ -96,6 +120,7 @@ export const TasksPage = () => {
         description: values.description || null,
         completed: false,
         createdAt: new Date().toISOString(),
+        dueDate: values.dueDate || null,
         priority: values.priority,
       };
 
@@ -110,13 +135,14 @@ export const TasksPage = () => {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['activity'] });
     },
   });
 
   const updateMutation = useMutation<
     void,
     unknown,
-    { id: number; values: Partial<TaskFormValues> & { completed?: boolean } },
+    { id: number; values: Partial<TaskFormValues> & { completed?: boolean; dueDate?: string } },
     { previousTasks: Task[] }
   >({
     mutationFn: async ({ id, values }) => {
@@ -125,6 +151,7 @@ export const TasksPage = () => {
       if (values.description !== undefined) payload.description = values.description;
       if (values.completed !== undefined) payload.completed = values.completed;
       if (values.priority !== undefined) payload.priority = values.priority;
+      if (values.dueDate !== undefined) payload.dueDate = values.dueDate || null;
       await api.put(`/tasks/${id}`, payload);
     },
     onMutate: async ({ id, values }) => {
@@ -141,6 +168,7 @@ export const TasksPage = () => {
               completed:
                 values.completed !== undefined ? values.completed : task.completed,
               priority: values.priority ?? task.priority,
+              dueDate: values.dueDate !== undefined ? (values.dueDate || null) : task.dueDate,
             }
           : task,
       );
@@ -156,6 +184,7 @@ export const TasksPage = () => {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['activity'] });
     },
   });
 
@@ -177,6 +206,7 @@ export const TasksPage = () => {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['activity'] });
     },
   });
 
@@ -201,6 +231,7 @@ export const TasksPage = () => {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['activity'] });
     },
   });
 
@@ -209,17 +240,21 @@ export const TasksPage = () => {
   };
 
   const openAddModal = () => {
-    setFormValues({ title: '', description: '', priority: 'medium' });
+    setFormValues({ title: '', description: '', priority: 'medium', dueDate: '' });
     setActiveTask(null);
     setIsAddOpen(true);
   };
 
   const openEditModal = (task: Task) => {
     setActiveTask(task);
+    const dueDateValue = task.dueDate
+      ? new Date(task.dueDate).toISOString().slice(0, 10)
+      : '';
     setFormValues({
       title: task.title,
       description: task.description ?? '',
       priority: task.priority ?? 'medium',
+      dueDate: dueDateValue,
     });
     setIsEditOpen(true);
   };
@@ -236,9 +271,16 @@ export const TasksPage = () => {
     }));
   };
 
+  const isDueDateValid = (value: string): boolean => {
+    if (!value.trim()) return true;
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime());
+  };
+
   const handleCreateSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formValues.title.trim()) return;
+    if (!isDueDateValid(formValues.dueDate)) return;
     createMutation.mutate(formValues, {
       onSuccess: () => {
         setIsAddOpen(false);
@@ -252,6 +294,7 @@ export const TasksPage = () => {
     e.preventDefault();
     if (!activeTask) return;
     if (!formValues.title.trim()) return;
+    if (!isDueDateValid(formValues.dueDate)) return;
     updateMutation.mutate(
       {
         id: activeTask.id,
@@ -259,6 +302,7 @@ export const TasksPage = () => {
           title: formValues.title,
           description: formValues.description,
           priority: formValues.priority,
+          dueDate: formValues.dueDate,
         },
       },
       {
@@ -462,6 +506,37 @@ export const TasksPage = () => {
                           <Flag className="h-3 w-3" />
                           {priorityLabel}
                         </span>
+                        {task.dueDate && (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(task.dueDate).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                          </span>
+                        )}
+                        {(() => {
+                          const dueStatus = getDueDateStatus(task.dueDate, task.completed);
+                          if (!dueStatus) return null;
+                          if (dueStatus.status === 'overdue') {
+                            return (
+                              <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium bg-red-500/20 text-red-700 dark:text-red-400">
+                                <AlertCircle className="h-3 w-3" />
+                                {dueStatus.label}
+                              </span>
+                            );
+                          }
+                          if (dueStatus.status === 'due_soon') {
+                            return (
+                              <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium bg-amber-500/20 text-amber-700 dark:text-amber-400">
+                                <Clock className="h-3 w-3" />
+                                {dueStatus.label}
+                              </span>
+                            );
+                          }
+                          return (
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                              {dueStatus.label}
+                            </span>
+                          );
+                        })()}
                         <span className="text-[11px] text-slate-500 dark:text-slate-500">
                           {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}
                         </span>
@@ -576,6 +651,21 @@ export const TasksPage = () => {
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
                   </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-200" htmlFor="dueDate">
+                    Due date
+                  </label>
+                  <input
+                    id="dueDate"
+                    type="date"
+                    value={formValues.dueDate}
+                    onChange={(e) => handleFormChange('dueDate', e.target.value)}
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-50 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-500"
+                  />
+                  {formValues.dueDate && !isDueDateValid(formValues.dueDate) && (
+                    <p className="text-xs text-red-600 dark:text-red-400">Please enter a valid date.</p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-end gap-2 pt-2">

@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import env from './config/env';
 import authRoutes from './routes/auth.routes';
 import taskRoutes from './routes/task.routes';
+import activityRoutes from './routes/activity.routes';
 import { authenticate } from './middleware/auth.middleware';
 import swaggerDocument from './config/swagger';
 
@@ -37,6 +38,7 @@ export const createApp = (): Application => {
 
   app.use('/api/auth', authRoutes);
   app.use('/tasks', taskRoutes);
+  app.use('/activity', activityRoutes);
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });

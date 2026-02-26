@@ -7,6 +7,7 @@ export interface TaskCreateDto {
   title: string;
   description?: string | null;
   priority?: Priority;
+  dueDate?: string | null;
 }
 
 /**
@@ -17,6 +18,7 @@ export interface TaskUpdateDto {
   description?: string | null;
   completed?: boolean;
   priority?: Priority;
+  dueDate?: string | null;
 }
 
 /**
@@ -28,6 +30,7 @@ export interface TaskResponseDto {
   description: string | null;
   completed: boolean;
   priority: Priority;
+  dueDate: string | null;
   createdAt: string;
   userId: number;
 }

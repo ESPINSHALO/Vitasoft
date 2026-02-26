@@ -11,11 +11,11 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-
-  tasks    Task[]
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  tasks        Task[]
+  activityLogs ActivityLog[]
 }
 
 enum Priority {
@@ -30,9 +30,21 @@ model Task {
   description String?
   completed   Boolean   @default(false)
   priority    Priority  @default(medium)
+  dueDate     DateTime?
   createdAt   DateTime  @default(now())
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  action     String   // 'created' | 'updated' | 'completed' | 'deleted'
+  taskId     Int?
+  taskTitle  String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
