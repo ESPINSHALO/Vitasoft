@@ -95,7 +95,7 @@ I designed it with a clean split between the frontend and backend, making it eas
    - Swagger UI: **http://localhost:4000/api-docs**
 
 2. **Start the client** (in another terminal): `cd client && npm run dev`  
-   - **Use the URL that Vite prints** in the terminal. It is often **http://localhost:5173**, but if that port is busy Vite will use the next one (e.g. **http://localhost:5198**). Always open the exact URL shown.
+   - **Use the URL that Vite prints** in the terminal (e.g. **http://localhost:5198**). Always open the exact URL shown.
 
 3. **Open the app:** In your browser, go to the client URL from step 2. Log in to see Tasks, Activity, and the due-task bell in the header.
 
@@ -149,7 +149,7 @@ npm install
 npm run dev
 ```
 
-The client will show a **Local** URL in the terminal when it starts (e.g. **http://localhost:5173** or **http://localhost:5198** if lower ports are in use). **Open that exact URL in your browser**—do not guess the port.
+The client will show a **Local** URL in the terminal when it starts (e.g. **http://localhost:5198**). **Open that exact URL in your browser**—do not guess the port.
 
 **Using the app:** After opening the client URL and logging in, you’ll see the **Tasks** page (due dates, duplicate detection, due-soon/overdue labels), the **Activity** page in the sidebar (timeline with expandable details), and the **due task notification** bell in the header. The API is at **http://localhost:4000** and Swagger at **http://localhost:4000/api-docs**.
 
@@ -199,7 +199,7 @@ VITE_API_URL=http://localhost:4000
 
 When the server is running, use these links:
 
-- **App (client):** Open the URL that `npm run dev` prints in the client terminal (e.g. **http://localhost:5173** or **http://localhost:5198**).
+- **App (client):** Open the URL that `npm run dev` prints in the client terminal (e.g. **http://localhost:5198**).
 - **API:** **http://localhost:4000**
 - **Swagger UI:** **http://localhost:4000/api-docs** (auth: `/api/auth`, tasks: `/tasks`, activity: `/activity`)
 
