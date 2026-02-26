@@ -32,7 +32,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 - Empty state handling for better UX
 
 ### Activity History
-- **Activity timeline** – every create, update, complete, and delete is logged. Open the **Activity** page from the sidebar (when the app is running at the client URL) to see a chronological list. The data is served from the same server (e.g. `GET http://localhost:4000/activity` when logged in).
+- **Activity timeline** – every create, update, complete, and delete is logged. Open the **Activity** page from the sidebar to see a chronological list. Activity data is loaded from the server (e.g. `GET /activity` when logged in).
 - **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when. The app stores a snapshot of the task at the time of the action, so you still see full details even for tasks that were later deleted.
 
 ### User Interface
@@ -91,13 +91,12 @@ I designed it with a clean split between the frontend and backend, making it eas
 ### Running the app (quick reference)
 
 1. **Start the server** (in a terminal): `cd server && npm run dev`  
-   - API and server: **http://localhost:4000**  
-   - Swagger UI: **http://localhost:4000/api-docs**
+   - The API and Swagger run on the same host and port (port is in your `.env`; see Environment Variables).
 
 2. **Start the client** (in another terminal): `cd client && npm run dev`  
-   - **Use the URL that Vite prints** in the terminal (e.g. **http://localhost:5198**). Always open the exact URL shown.
+   - Vite will print a **Local** URL in the terminal. **Open that exact URL in your browser**—the port can change each time, so use what it shows.
 
-3. **Open the app:** In your browser, go to the client URL from step 2. Log in to see Tasks, Activity, and the due-task bell in the header.
+3. **Open the app:** Use the client URL from step 2. Log in to see Tasks, Activity, and the due-task bell in the header.
 
 ### Backend Setup
 
@@ -128,7 +127,7 @@ npx prisma migrate dev
 npm run dev
 ```
 
-The server will run on **http://localhost:4000** by default. That’s also where the API and Swagger docs live (see [API Documentation](#-api-documentation) below).
+The server runs on the port set in your `.env` (see Environment Variables). The API and Swagger docs are on that same server (Swagger at `/api-docs`). See [API Documentation](#-api-documentation) below.
 
 ### Frontend Setup
 
@@ -149,9 +148,9 @@ npm install
 npm run dev
 ```
 
-The client will show a **Local** URL in the terminal when it starts (e.g. **http://localhost:5198**). **Open that exact URL in your browser**—do not guess the port.
+The client will print a **Local** URL in the terminal when it starts. **Open that exact URL in your browser**—the port can differ each run, so don’t rely on a fixed port number.
 
-**Using the app:** After opening the client URL and logging in, you’ll see the **Tasks** page (due dates, duplicate detection, due-soon/overdue labels), the **Activity** page in the sidebar (timeline with expandable details), and the **due task notification** bell in the header. The API is at **http://localhost:4000** and Swagger at **http://localhost:4000/api-docs**.
+**Using the app:** After opening that URL and logging in, you’ll see the **Tasks** page (due dates, duplicate detection, due-soon/overdue labels), the **Activity** page in the sidebar (timeline with expandable details), and the **due task notification** bell in the header. The API and Swagger run on the server (see Backend Setup).
 
 ### Production Build
 
@@ -197,11 +196,7 @@ VITE_API_URL=http://localhost:4000
 
 ## 📚 API Documentation
 
-When the server is running, use these links:
-
-- **App (client):** Open the URL that `npm run dev` prints in the client terminal (e.g. **http://localhost:5198**).
-- **API:** **http://localhost:4000**
-- **Swagger UI:** **http://localhost:4000/api-docs** (auth: `/api/auth`, tasks: `/tasks`, activity: `/activity`)
+When the server is running, Swagger is available at **/api-docs** on the same host and port. Open the app in your browser using the **exact URL** that the client prints when you run `npm run dev` in the client folder (that URL changes depending on which port Vite picks).
 
 The Swagger interface provides:
 - Complete endpoint documentation
