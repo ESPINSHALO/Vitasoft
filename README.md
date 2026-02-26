@@ -22,6 +22,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 - Mark tasks as completed with optimistic UI updates
 - Task descriptions and creation timestamps
 - **Due dates** – set an expected completion date on any task. The app shows “Due soon” when the date is within 48 hours and “Overdue” when it’s past. Remaining time is shown with a clear countdown (e.g. “in 5 days”).
+- **Duplicate detection** – when you create a task, the app checks for similar titles (same wording, one containing the other, or a lot of shared words). If it finds matches, it shows you the list and lets you either go back and change the title or create the task anyway.
 - Visual priority indicators (low, medium, high)
 - Search tasks by title or description
 - Filter tasks by status (all, active, completed)
@@ -32,7 +33,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 
 ### Activity History
 - **Activity timeline** – every create, update, complete, and delete is logged. Open the Activity page from the sidebar to see a chronological list.
-- **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when.
+- **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when. The app stores a snapshot of the task at the time of the action, so you still see full details even for tasks that were later deleted.
 
 ### User Interface
 - Clean, modern design with gradient backgrounds and smooth animations
