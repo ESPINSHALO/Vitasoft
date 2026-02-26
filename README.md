@@ -88,6 +88,17 @@ I designed it with a clean split between the frontend and backend, making it eas
 - Node.js (v18 or higher)
 - npm or yarn package manager
 
+### Running the app (quick reference)
+
+1. **Start the server** (in a terminal): `cd server && npm run dev`  
+   - API and server: **http://localhost:4000**  
+   - Swagger UI: **http://localhost:4000/api-docs**
+
+2. **Start the client** (in another terminal): `cd client && npm run dev`  
+   - **Use the URL that Vite prints** in the terminal. It is often **http://localhost:5173**, but if that port is busy Vite will use the next one (e.g. **http://localhost:5198**). Always open the exact URL shown.
+
+3. **Open the app:** In your browser, go to the client URL from step 2. Log in to see Tasks, Activity, and the due-task bell in the header.
+
 ### Backend Setup
 
 1. Navigate to the server directory:
@@ -138,9 +149,9 @@ npm install
 npm run dev
 ```
 
-The client will run on **http://localhost:5173** by default (Vite may use another port, e.g. 5174, if 5173 is in use; check the terminal output).
+The client will show a **Local** URL in the terminal when it starts (e.g. **http://localhost:5173** or **http://localhost:5198** if lower ports are in use). **Open that exact URL in your browser**—do not guess the port.
 
-**Using the app:** Open the client URL in your browser (e.g. http://localhost:5173). After logging in you’ll see the **Tasks** page (with due dates, duplicate detection, and due-soon/overdue labels), the **Activity** page in the sidebar (timeline of create/update/complete/delete with expandable details), and the **due task notification** bell in the header (overdue, due today, due within 48 hours). The API and Swagger UI are on the server URL (http://localhost:4000 and http://localhost:4000/api-docs).
+**Using the app:** After opening the client URL and logging in, you’ll see the **Tasks** page (due dates, duplicate detection, due-soon/overdue labels), the **Activity** page in the sidebar (timeline with expandable details), and the **due task notification** bell in the header. The API is at **http://localhost:4000** and Swagger at **http://localhost:4000/api-docs**.
 
 ### Production Build
 
@@ -186,10 +197,11 @@ VITE_API_URL=http://localhost:4000
 
 ## 📚 API Documentation
 
-Interactive API documentation is available via Swagger UI when the server is running at **http://localhost:4000**:
+When the server is running, use these links:
 
-- **Swagger UI:** http://localhost:4000/api-docs  
-- **API base:** http://localhost:4000 (auth at `/api/auth`, tasks at `/tasks`, activity at `/activity`)
+- **App (client):** Open the URL that `npm run dev` prints in the client terminal (e.g. **http://localhost:5173** or **http://localhost:5198**).
+- **API:** **http://localhost:4000**
+- **Swagger UI:** **http://localhost:4000/api-docs** (auth: `/api/auth`, tasks: `/tasks`, activity: `/activity`)
 
 The Swagger interface provides:
 - Complete endpoint documentation
