@@ -28,7 +28,7 @@ export const LoginPage = () => {
       const res = await api.post<{ token: string }>('/api/auth/login', { email, password });
       login({ token: res.data.token, user: { id: null, email } });
       toast.success('Welcome back');
-      navigate('/tasks');
+      navigate('/');
     } catch {
       setError('Invalid credentials');
       toast.error('Login failed');

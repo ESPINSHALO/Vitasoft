@@ -17,7 +17,7 @@ export const RedirectIfAuth = ({ children }: { children: ReactElement }) => {
   const token = useAuthStore((s) => s.token);
 
   if (token) {
-    return <Navigate to="/tasks" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;

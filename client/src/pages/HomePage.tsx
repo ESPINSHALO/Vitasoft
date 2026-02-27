@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ListTodo, Zap, Palette, Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } };
 const stagger = { transition: { staggerChildren: 0.08, delayChildren: 0.1 } };
@@ -39,7 +40,10 @@ const bullets = [
   'Toast notifications',
 ];
 
-export const HomePage = () => (
+export const HomePage = () => {
+  const token = useAuthStore((s) => s.token);
+
+  return (
   <div className="space-y-16 pb-12">
     {/* Hero */}
     <motion.section
@@ -67,7 +71,7 @@ export const HomePage = () => (
         </motion.p>
         <motion.div className="mt-8 flex flex-wrap gap-4" variants={fadeUp}>
           <Link
-            to="/login"
+            to={token ? '/tasks' : '/login'}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:from-sky-600 hover:to-indigo-600 hover:shadow-sky-500/40"
           >
             Get started
@@ -135,4 +139,5 @@ export const HomePage = () => (
       </div>
     </motion.section>
   </div>
-);
+  );
+};
