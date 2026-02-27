@@ -19,6 +19,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 
 ### Task Management
 - Create, read, update, and delete tasks
+- **Task summary** – at the top of the Tasks page, four cards show total tasks, how many are done, how many are still pending, and how many are overdue (past their due date and not completed). The numbers update as you work.
 - Mark tasks as completed with optimistic UI updates
 - Task descriptions and creation timestamps
 - **Due dates** – set an expected completion date on any task. The app shows “Due soon” when the date is within 48 hours and “Overdue” when it’s past. Remaining time is shown with a clear countdown (e.g. “in 5 days”).

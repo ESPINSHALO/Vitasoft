@@ -2,7 +2,7 @@ import { useState, useMemo, type FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { formatDistanceToNow, formatDistanceStrict, isPast, differenceInHours } from 'date-fns';
+import { formatDistanceToNow, formatDistanceStrict, isPast, differenceInHours, startOfDay, isBefore } from 'date-fns';
 import {
   Search,
   Plus,
@@ -19,8 +19,10 @@ import {
   AlertCircle,
   Clock,
   Copy,
+  ListTodo,
 } from 'lucide-react';
 import { api } from '../lib/api';
+import { SummaryCard } from '../components/SummaryCard';
 
 type Priority = 'low' | 'medium' | 'high';
 type FilterStatus = 'all' | 'active' | 'completed';
@@ -384,6 +386,20 @@ export const TasksPage = () => {
 
   const rawTasks = useMemo(() => data ?? [], [data]);
 
+  const taskSummary = useMemo(() => {
+    const total = rawTasks.length;
+    const completed = rawTasks.filter((t) => t.completed).length;
+    const pending = rawTasks.filter((t) => !t.completed).length;
+    const todayStart = startOfDay(new Date());
+    const overdue = rawTasks.filter((t) => {
+      if (t.completed || !t.dueDate) return false;
+      const due = new Date(t.dueDate);
+      if (Number.isNaN(due.getTime())) return false;
+      return isBefore(due, todayStart);
+    }).length;
+    return { total, completed, pending, overdue };
+  }, [rawTasks]);
+
   const filteredAndSortedTasks = useMemo(() => {
     let list = rawTasks.filter((task) => {
       const matchSearch =
@@ -405,6 +421,33 @@ export const TasksPage = () => {
 
   return (
     <section className="flex w-full flex-col gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SummaryCard
+          label="Total tasks"
+          count={taskSummary.total}
+          icon={ListTodo}
+          variant="neutral"
+        />
+        <SummaryCard
+          label="Completed"
+          count={taskSummary.completed}
+          icon={CheckCircle2}
+          variant="completed"
+        />
+        <SummaryCard
+          label="Pending"
+          count={taskSummary.pending}
+          icon={Circle}
+          variant="pending"
+        />
+        <SummaryCard
+          label="Overdue"
+          count={taskSummary.overdue}
+          icon={AlertCircle}
+          variant="overdue"
+        />
+      </div>
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Tasks</h2>
