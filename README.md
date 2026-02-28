@@ -93,6 +93,8 @@ I designed it with a clean split between the frontend and backend, making it eas
 
 ## 🚀 How to run the app
 
+These steps work on **Windows, macOS, and Linux**. On Windows you can use Command Prompt, PowerShell, or Git Bash—the commands are the same.
+
 **What you need:** Node.js v18 or newer (download from [nodejs.org](https://nodejs.org) if you don’t have it). Check with `node -v` in a terminal. npm comes with Node.
 
 ### First time (from scratch)
