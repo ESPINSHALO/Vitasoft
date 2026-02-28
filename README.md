@@ -12,9 +12,12 @@ I designed it with a clean split between the frontend and backend, making it eas
 
 ### Authentication & Security
 - User registration and login with secure JWT tokens
-- Passwords are hashed with bcrypt before storage
+- **Usernames** – create an account with a unique username and email
+- Passwords are hashed with bcrypt before storage; never returned in any API response
+- **Change password** – update your password from the Profile page. You must enter your current password first; the app verifies it before allowing a change. New password must differ from the current one and be at least 6 characters.
 - Protected routes that require authentication
-- Automatic logout handling when tokens expire
+- Automatic logout when tokens expire or are invalid
+- When you enter a wrong current password on the change-password form, you stay logged in and see a clear error message
 - Secure token storage in browser localStorage
 
 ### Task Management
@@ -37,7 +40,11 @@ I designed it with a clean split between the frontend and backend, making it eas
 - **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when. The app stores a snapshot of the task at the time of the action, so you still see full details even for tasks that were later deleted.
 
 ### User Interface
+- **Profile page** – click your avatar in the top-right corner to open your profile. See your username and email, and update your password when needed. Profile is only available from the avatar; the sidebar stays focused on Tasks, Activity, and Overview.
+- **Password visibility toggles** – on Login, Signup, and the Profile change-password form, you can toggle an eye icon to show or hide what you type. No more guessing whether you entered the right password.
 - **Due task notification** – a bell icon in the header shows how many tasks are overdue, due today, or due in the next 48 hours. Click it to open a dropdown with those tasks grouped so you can see what needs attention without opening the Tasks page.
+- **Clear all notifications** – in the due-task dropdown, a “Clear” button lets you dismiss all current notifications at once. The badge disappears until new urgent tasks appear.
+- **Overview page** – a welcoming landing page with a hero section, feature highlights, and an “Included out of the box” grid. “Get started” takes you to Tasks when logged in, or to Login when not.
 - Clean, modern design with gradient backgrounds and smooth animations
 - Dark and light theme toggle that remembers your preference
 - Smooth page transitions and micro-interactions
@@ -97,7 +104,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 2. **Start the client** (in another terminal): `cd client && npm run dev`  
    - Vite will print a **Local** URL in the terminal. **Open that exact URL in your browser**—the port can change each time, so use what it shows.
 
-3. **Open the app:** Use the client URL from step 2. Log in to see Tasks, Activity, and the due-task bell in the header.
+3. **Open the app:** Use the client URL from step 2. Log in to see the Overview, Tasks, Activity, the due-task bell in the header, and your profile (click your avatar in the top-right).
 
 ### Backend Setup
 
@@ -151,7 +158,7 @@ npm run dev
 
 The client will print a **Local** URL in the terminal when it starts. **Open that exact URL in your browser**—the port can differ each run, so don’t rely on a fixed port number.
 
-**Using the app:** After opening that URL and logging in, you’ll see the **Tasks** page (due dates, duplicate detection, due-soon/overdue labels), the **Activity** page in the sidebar (timeline with expandable details), and the **due task notification** bell in the header. The API and Swagger run on the server (see Backend Setup).
+**Using the app:** After opening that URL and logging in, you’ll see the **Overview** page, **Tasks** (due dates, duplicate detection, due-soon/overdue labels), **Activity** (timeline with expandable details), the **due task notification** bell in the header, and your **Profile** (click your avatar). The API and Swagger run on the server (see Backend Setup).
 
 ### Production Build
 
@@ -258,7 +265,6 @@ All endpoints are documented with:
 - **Bulk Operations** - Enable selecting and performing actions on multiple tasks simultaneously
 
 ### Medium-term Features
-- **User Profile Management** - Allow users to update email, change password, and manage account settings
 - **Task Sharing** - Enable sharing tasks between users with permission levels
 - **File Attachments** - Support attaching files or images to tasks
 - **Task Comments** - Add commenting system for collaboration on tasks
