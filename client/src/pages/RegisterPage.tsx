@@ -18,6 +18,15 @@ import {
 import { api } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(password)) return 'Password must contain at least 1 uppercase letter';
+  if (!/[0-9]/.test(password)) return 'Password must contain at least 1 number';
+  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password))
+    return 'Password must contain at least 1 special character (!@#$%^&* etc.)';
+  return null;
+}
+
 export const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -43,8 +52,9 @@ export const RegisterPage = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    const pwdError = validatePassword(password);
+    if (pwdError) {
+      setError(pwdError);
       return;
     }
 
@@ -180,7 +190,7 @@ export const RegisterPage = () => {
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">
-                  Password (min 6 characters)
+                  Password (at least 8 chars, 1 uppercase, 1 number, 1 special char)
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -190,6 +200,7 @@ export const RegisterPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
+                    minLength={8}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-10 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition"
                   />
                   <button

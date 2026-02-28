@@ -6,6 +6,15 @@ import { toast } from 'sonner';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(password)) return 'Password must contain at least 1 uppercase letter';
+  if (!/[0-9]/.test(password)) return 'Password must contain at least 1 number';
+  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password))
+    return 'Password must contain at least 1 special character';
+  return null;
+}
+
 interface UserProfile {
   id: number;
   username: string;
@@ -121,9 +130,10 @@ function UpdatePasswordSection() {
       setError('New password must not be empty');
       return;
     }
-    if (newPassword.length < 6) {
-      setError('New password must be at least 6 characters');
-      toast.error('New password must be at least 6 characters');
+    const pwdError = validatePassword(newPassword);
+    if (pwdError) {
+      setError(pwdError);
+      toast.error(pwdError);
       return;
     }
     if (newPassword !== confirmNew) {
@@ -185,7 +195,7 @@ function UpdatePasswordSection() {
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-400">
-            New password
+            New password (at least 8 chars, 1 uppercase, 1 number, 1 special char)
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -195,7 +205,7 @@ function UpdatePasswordSection() {
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="••••••••"
               required
-              minLength={6}
+              minLength={8}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-10 py-2.5 text-sm"
             />
             <button

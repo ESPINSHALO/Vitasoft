@@ -14,7 +14,8 @@ I designed it with a clean split between the frontend and backend, making it eas
 - User registration and login with secure JWT tokens
 - **Usernames** – create an account with a unique username and email
 - Passwords are hashed with bcrypt before storage; never returned in any API response
-- **Change password** – update your password from the Profile page. You must enter your current password first; the app verifies it before allowing a change. New password must differ from the current one and be at least 6 characters.
+- **Password rules** – when you sign up or change your password, it must be at least 8 characters and include at least one uppercase letter, one number, and one special character (e.g. !@#$%^&*). The same rules apply on signup and when updating your password from Profile.
+- **Change password** – update your password from the Profile page. You must enter your current password first; the app verifies it before allowing a change. The new password must meet the rules above and differ from the current one.
 - Protected routes that require authentication
 - Automatic logout when tokens expire or are invalid
 - When you enter a wrong current password on the change-password form, you stay logged in and see a clear error message

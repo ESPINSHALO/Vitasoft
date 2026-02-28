@@ -7,6 +7,21 @@ import type { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 const SALT_ROUNDS = 10;
 
+const PASSWORD_REGEX = {
+  length: /^.{8,}$/,
+  uppercase: /[A-Z]/,
+  number: /[0-9]/,
+  special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/,
+};
+
+function validatePassword(password: string): string | null {
+  if (!PASSWORD_REGEX.length.test(password)) return 'Password must be at least 8 characters';
+  if (!PASSWORD_REGEX.uppercase.test(password)) return 'Password must contain at least 1 uppercase letter';
+  if (!PASSWORD_REGEX.number.test(password)) return 'Password must contain at least 1 number';
+  if (!PASSWORD_REGEX.special.test(password)) return 'Password must contain at least 1 special character';
+  return null;
+}
+
 /**
  * Registers a new user with username, email, and hashed password.
  */
@@ -25,6 +40,11 @@ export const register = async (req: Request, res: Response) => {
     const trimmedUsername = username.trim();
     if (trimmedUsername.length < 2) {
       return res.status(400).json({ message: 'Username must be at least 2 characters' });
+    }
+
+    const pwdError = validatePassword(password);
+    if (pwdError) {
+      return res.status(400).json({ message: pwdError });
     }
 
     const existingEmail = await prisma.user.findUnique({ where: { email } });
@@ -125,8 +145,9 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
     return res.status(400).json({ message: 'New password must not be empty' });
   }
 
-  if (neu.length < 6) {
-    return res.status(400).json({ message: 'New password must be at least 6 characters' });
+  const pwdError = validatePassword(neu);
+  if (pwdError) {
+    return res.status(400).json({ message: pwdError });
   }
 
   const user = await prisma.user.findUnique({

@@ -6,6 +6,15 @@ import { toast } from 'sonner';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(password)) return 'Password must contain at least 1 uppercase letter';
+  if (!/[0-9]/.test(password)) return 'Password must contain at least 1 number';
+  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password))
+    return 'Password must contain at least 1 special character';
+  return null;
+}
+
 interface ProfileMenuProps {
   onClose: () => void;
   anchorRef: React.RefObject<HTMLButtonElement | null>;
@@ -99,8 +108,9 @@ function UpdatePasswordButton({ onSuccess }: { onSuccess: () => void }) {
       toast.error('New password must not be empty');
       return;
     }
-    if (newPassword.length < 6) {
-      toast.error('New password must be at least 6 characters');
+    const pwdError = validatePassword(newPassword);
+    if (pwdError) {
+      toast.error(pwdError);
       return;
     }
     if (newPassword !== confirmNew) {
@@ -160,7 +170,7 @@ function UpdatePasswordButton({ onSuccess }: { onSuccess: () => void }) {
       </div>
       <div>
         <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-          New password
+          New password (at least 8 chars, 1 uppercase, 1 number, 1 special)
         </label>
         <div className="relative">
           <Lock className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
@@ -170,7 +180,7 @@ function UpdatePasswordButton({ onSuccess }: { onSuccess: () => void }) {
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="••••••••"
             required
-            minLength={6}
+            minLength={8}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-8 pr-2.5 py-1.5 text-sm"
           />
         </div>
