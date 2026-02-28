@@ -91,86 +91,95 @@ I designed it with a clean split between the frontend and backend, making it eas
 - **Morgan** - HTTP request logger
 - **Swagger UI Express** - Interactive API documentation
 
-## 🚀 Installation Steps
+## 🚀 How to run the app
 
-### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn package manager
+**What you need:** Node.js v18 or newer (download from [nodejs.org](https://nodejs.org) if you don’t have it). Check with `node -v` in a terminal. npm comes with Node.
 
-### Running the app (quick reference)
+### First time (from scratch)
 
-1. **Start the server** (in a terminal): `cd server && npm run dev`  
-   - The API and Swagger run on the same host and port (port is in your `.env`; see Environment Variables).
+**0. Get the code**
 
-2. **Start the client** (in another terminal): `cd client && npm run dev`  
-   - Vite will print a **Local** URL in the terminal. **Open that exact URL in your browser**—the port can change each time, so use what it shows.
+```bash
+git clone https://github.com/ESPINSHALO/Vitasoft.git
+cd Vitasoft
+```
 
-3. **Open the app:** Use the client URL from step 2. Log in to see the Overview, Tasks, Activity, the due-task bell in the header, and your profile (click your avatar in the top-right).
+(Use your own fork’s URL if you forked the repo.)
 
-### Backend Setup
+**1. Backend**
 
-1. Navigate to the server directory:
+Open a terminal (or Command Prompt on Windows), go into the project folder, and run:
+
 ```bash
 cd server
-```
-
-2. Install dependencies:
-```bash
 npm install
 ```
 
-3. Set up environment variables (see Environment Variables section below)
+Create a file named `.env` inside the `server` folder. Paste this into it (you can change `JWT_SECRET` to any random string):
 
-4. Generate Prisma client:
+```
+PORT=4000
+NODE_ENV=development
+DATABASE_URL="file:./dev.db"
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRES_IN=1h
+```
+
+Then run:
+
 ```bash
 npx prisma generate
-```
-
-5. Run database migrations:
-```bash
 npx prisma migrate dev
-```
-
-6. Start the development server:
-```bash
 npm run dev
 ```
 
-The server runs on the port set in your `.env` (see Environment Variables). The API and Swagger docs are on that same server (Swagger at `/api-docs`). See [API Documentation](#-api-documentation) below.
+The server will start on port 4000. Leave this terminal running. Swagger docs: `http://localhost:4000/api-docs`
 
-### Frontend Setup
+**2. Frontend**
 
-1. Navigate to the client directory:
+Open a second terminal in the project folder (the first one stays running the server):
+
 ```bash
 cd client
-```
-
-2. Install dependencies:
-```bash
 npm install
 ```
 
-3. Set up environment variables (see Environment Variables section below)
+Create a `.env` file in the `client` folder with exactly this line (if your server uses a different port, change 4000 to match):
 
-4. Start the development server:
+```
+VITE_API_URL=http://localhost:4000
+```
+
+Then run:
+
 ```bash
 npm run dev
 ```
 
-The client will print a **Local** URL in the terminal when it starts. **Open that exact URL in your browser**—the port can differ each run, so don’t rely on a fixed port number.
+Vite will print a URL like `http://localhost:5173`. Open that in your browser. The port can change each run, so use whatever it shows.
 
-**Using the app:** After opening that URL and logging in, you’ll see the **Overview** page, **Tasks** (due dates, duplicate detection, due-soon/overdue labels), **Activity** (timeline with expandable details), the **due task notification** bell in the header, and your **Profile** (click your avatar). The API and Swagger run on the server (see Backend Setup).
+**3. Use the app**
 
-### Production Build
+Sign up or log in. From the sidebar you can open Overview, Tasks, and Activity. Profile and password change are under the avatar in the top-right. The bell icon shows due and overdue tasks.
 
-**Backend:**
+**Stuck?** If the server says "port already in use", something else is using port 4000—close that app or change `PORT` in `server/.env`. If you see "command not found" for `node` or `npm`, install Node from nodejs.org first.
+
+### Later (when everything is already set up)
+
+- **Server:** `cd server && npm run dev`
+- **Client:** `cd client && npm run dev`  
+  Then open the URL Vite prints in the terminal.
+
+### Production build
+
+**Server:**
 ```bash
 cd server
 npm run build
 npm start
 ```
 
-**Frontend:**
+**Client:**
 ```bash
 cd client
 npm run build
@@ -179,45 +188,31 @@ npm run preview
 
 ## 🔐 Environment Variables
 
-### Server (`.env` file in `server/` directory)
+The app needs two `.env` files—one in `server/`, one in `client/`. Create them if they don’t exist.
+
+**Server** (`server/.env`):
 
 ```env
-# Server Configuration
 PORT=4000
 NODE_ENV=development
-
-# Database
 DATABASE_URL="file:./dev.db"
-
-# JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 JWT_EXPIRES_IN=1h
 ```
 
-**Important:** Replace `JWT_SECRET` with a strong, random string in production environments.
+Use a strong random value for `JWT_SECRET` if you deploy to production.
 
-### Client (`.env` file in `client/` directory)
+**Client** (`client/.env`):
 
 ```env
-# API Configuration
 VITE_API_URL=http://localhost:4000
 ```
 
+Use the same host and port as your running server (e.g. if the server is on 4000, keep it as above).
+
 ## 📚 API Documentation
 
-When the server is running, Swagger is available at **/api-docs** on the same host and port. Open the app in your browser using the **exact URL** that the client prints when you run `npm run dev` in the client folder (that URL changes depending on which port Vite picks).
-
-The Swagger interface provides:
-- Complete endpoint documentation
-- Request/response schemas
-- Interactive API testing
-- Authentication flow examples
-
-All endpoints are documented with:
-- Request parameters and body schemas
-- Response formats and status codes
-- Authentication requirements
-- Error response examples
+With the server running, open `http://localhost:4000/api-docs` (or whatever port you set in `server/.env`) in your browser. You get the full list of endpoints, request/response shapes, and you can try calls from there. Auth-protected routes are documented too—you can pass a token and test them from Swagger.
 
 ## 📦 Third-Party Libraries & Rationale
 
