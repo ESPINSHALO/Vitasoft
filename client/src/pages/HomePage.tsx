@@ -110,32 +110,27 @@ export const HomePage = () => {
       </div>
     </section>
 
-    {/* Bullet list + CTA */}
+    {/* Included features grid */}
     <motion.section
-      className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-6 sm:p-8"
+      className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 p-6 sm:p-8"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
-      <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Included out of the box</h3>
-          <ul className="space-y-2">
-            {bullets.map((text) => (
-              <li key={text} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <Link
-          to="/tasks"
-          className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-sky-600 shrink-0"
-        >
-          Go to Tasks
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+      <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Included out of the box</h3>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {bullets.map((text, i) => (
+          <motion.div
+            key={text}
+            className="flex items-center gap-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800/50 px-4 py-3 text-sm text-slate-700 dark:text-slate-300"
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35 + i * 0.04 }}
+          >
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+            {text}
+          </motion.div>
+        ))}
       </div>
     </motion.section>
   </div>
