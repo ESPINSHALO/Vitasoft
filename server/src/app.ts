@@ -52,8 +52,15 @@ export const createApp = (): Application => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     // eslint-disable-next-line no-console
-    console.error(err);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Global error handler:', err);
+    let message = 'Internal server error';
+    if (err instanceof Error) {
+      message = err.message;
+    } else if (err && typeof err === 'object') {
+      if ('message' in err) message = String((err as { message: unknown }).message);
+      else if (env.nodeEnv !== 'production') message = JSON.stringify(err);
+    }
+    return res.status(500).json({ message });
   });
 
   return app;
