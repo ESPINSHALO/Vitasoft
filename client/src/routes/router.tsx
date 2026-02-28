@@ -126,12 +126,22 @@ export const RootLayout = () => {
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate max-w-[140px]">{user?.email ?? 'Guest'}</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate max-w-[140px]">{user?.username ?? user?.email ?? 'Guest'}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">{token ? 'Signed in' : 'Guest'}</p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-sm font-bold text-white shadow-md">
-              {(user?.email ?? 'G').charAt(0).toUpperCase()}
-            </div>
+            {token ? (
+              <Link
+                to="/profile"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-sm font-bold text-white shadow-md hover:opacity-90 transition"
+                aria-label="Profile"
+              >
+                {(user?.username ?? user?.email ?? 'G').charAt(0).toUpperCase()}
+              </Link>
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-sm font-bold text-white shadow-md">
+                {(user?.email ?? 'G').charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
         </header>
         <main
