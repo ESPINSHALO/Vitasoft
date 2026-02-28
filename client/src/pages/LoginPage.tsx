@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { LogIn, Mail, Lock, ArrowRight, ListTodo, Zap, Shield, CheckCircle2 } from 'lucide-react';
+import { LogIn, Mail, Lock, ArrowRight, ListTodo, Zap, Shield, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const login = useAuthStore((state) => state.login);
@@ -25,8 +26,12 @@ export const LoginPage = () => {
 
     try {
       setIsSubmitting(true);
-      const res = await api.post<{ token: string }>('/api/auth/login', { email, password });
-      login({ token: res.data.token, user: { id: null, email } });
+      const res = await api.post<{ token: string; user?: { id: number; email: string; username: string } }>('/api/auth/login', { email, password });
+      const u = res.data.user;
+      login({
+        token: res.data.token,
+        user: u ? { id: u.id, email: u.email, username: u.username } : { id: null, email, username: null },
+      });
       toast.success('Welcome back');
       navigate('/');
     } catch {
@@ -137,12 +142,20 @@ export const LoginPage = () => {
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-3 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-10 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
 
