@@ -24,10 +24,15 @@ const swaggerDocument: OpenAPIV3_1.Document = {
     schemas: {
       AuthRegisterRequest: {
         type: 'object',
-        required: ['email', 'password'],
+        required: ['username', 'email', 'password'],
         properties: {
+          username: { type: 'string', minLength: 2, description: 'Unique username' },
           email: { type: 'string', format: 'email' },
-          password: { type: 'string', minLength: 6 },
+          password: {
+            type: 'string',
+            minLength: 8,
+            description: 'Minimum 8 characters, at least one uppercase letter, one number, and one special character.',
+          },
         },
       },
       AuthLoginRequest: {
@@ -42,6 +47,36 @@ const swaggerDocument: OpenAPIV3_1.Document = {
         type: 'object',
         properties: {
           token: { type: 'string' },
+          user: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              email: { type: 'string' },
+              username: { type: 'string' },
+            },
+          },
+        },
+      },
+      AuthMeResponse: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          username: { type: 'string' },
+          email: { type: 'string' },
+        },
+      },
+      ChangePasswordRequest: {
+        type: 'object',
+        required: ['currentPassword', 'newPassword'],
+        properties: {
+          currentPassword: { type: 'string' },
+          newPassword: { type: 'string', minLength: 8 },
+        },
+      },
+      ChangePasswordResponse: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
         },
       },
       Task: {
@@ -150,6 +185,72 @@ const swaggerDocument: OpenAPIV3_1.Document = {
           },
           '401': {
             description: 'Invalid credentials',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/auth/me': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Get authenticated user details',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'User details',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AuthMeResponse' },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/auth/change-password': {
+      put: {
+        tags: ['Auth'],
+        summary: 'Change user password',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ChangePasswordRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Password updated successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ChangePasswordResponse' },
+              },
+            },
+          },
+          '400': {
+            description: 'Validation error or new password must differ',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          '401': {
+            description: 'Incorrect current password or unauthorized',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ErrorResponse' },

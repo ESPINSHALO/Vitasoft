@@ -259,6 +259,13 @@ All endpoints are documented with:
 
 **dotenv** - Environment variable management ensuring sensitive configuration remains outside version control. Industry standard for configuration management.
 
+## Known Limitations
+
+- SQLite is used for local development and is not ideal for high-scale production.
+- Email verification is not implemented.
+- Rate limiting is not enabled.
+- Backend may sleep on free hosting tiers.
+
 ## 🔮 Future Improvements
 
 ### Short-term Enhancements

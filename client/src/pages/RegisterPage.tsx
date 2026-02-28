@@ -72,7 +72,6 @@ export const RegisterPage = () => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       setError(msg || 'Registration failed. Try a different email or username.');
       toast.error('Registration failed');
-      console.error(err);
     } finally {
       setIsSubmitting(false);
     }

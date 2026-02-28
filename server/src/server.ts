@@ -7,7 +7,9 @@ import { createApp } from './app';
 const app = createApp();
 
 app.listen(env.port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server listening on port ${env.port}`);
+  if (env.nodeEnv !== 'production') {
+    // eslint-disable-next-line no-console
+    console.log(`Server listening on port ${env.port}`);
+  }
 });
 

@@ -73,7 +73,10 @@ export const register = async (req: Request, res: Response) => {
       email: user.email,
     });
   } catch (err) {
-    console.error('Registration error:', err);
+    if (env.nodeEnv !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error('Registration error:', err);
+    }
     if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'P2002') {
       return res.status(409).json({ message: 'Email or username already registered' });
     }
