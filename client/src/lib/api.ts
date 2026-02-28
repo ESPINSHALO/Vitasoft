@@ -21,7 +21,15 @@ api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      // Token is missing/invalid/expired: clear auth state and send user to login.
+      // change-password 401 = wrong current password: do not logout, let component handle it
+      const config = error.config;
+      const isChangePassword = config?.url?.includes('change-password');
+      const msg = (error.response?.data as { message?: string })?.message;
+      if (isChangePassword && msg === 'Current password is incorrect') {
+        return Promise.reject(error);
+      }
+
+      // Token missing/invalid/expired: clear auth and redirect to login
       if (!isHandlingUnauthorized) {
         isHandlingUnauthorized = true;
         useAuthStore.getState().logout();
@@ -32,7 +40,6 @@ api.interceptors.response.use(
           window.location.href = '/login';
         }
 
-        // Allow future 401 handling after redirect/log out cycle
         setTimeout(() => {
           isHandlingUnauthorized = false;
         }, 500);
