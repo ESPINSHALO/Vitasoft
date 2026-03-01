@@ -8,6 +8,8 @@ Vitasoft is a task management application I built to help users stay organized a
 
 I designed it with a clean split between the frontend and backend, making it easier to maintain and extend over time. Everything is built with TypeScript for better reliability and developer experience.
 
+**Want to see the app in action?** There’s a [short screen recording](https://drive.google.com/file/d/1NISkt6xqT618Sk5gP7ijnuohcynqHQeJ/view?usp=sharing) that walks through the full application—signup, login, tasks, due dates, activity, and profile. Open the link to watch it.
+
 ## ✨ Features
 
 ### Authentication & Security
