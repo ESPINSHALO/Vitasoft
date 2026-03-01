@@ -42,12 +42,17 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username must be at least 2 characters' });
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: 'A valid email is required' });
+    }
+
     const pwdError = validatePassword(password);
     if (pwdError) {
       return res.status(400).json({ message: pwdError });
     }
 
-    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    const existingEmail = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existingEmail) {
       return res.status(409).json({ message: 'Email already registered' });
     }
@@ -62,7 +67,7 @@ export const register = async (req: Request, res: Response) => {
     const user = await prisma.user.create({
       data: {
         username: trimmedUsername,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
       },
     });

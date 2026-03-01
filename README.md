@@ -164,7 +164,7 @@ Vite will print a URL like `http://localhost:5173`. Open that in your browser. T
 
 Sign up or log in. From the sidebar you can open Overview, Tasks, and Activity. Profile and password change are under the avatar in the top-right. The bell icon shows due and overdue tasks.
 
-**Stuck?** If the server says "port already in use", something else is using port 4000—close that app or change `PORT` in `server/.env`. If you see "command not found" for `node` or `npm`, install Node from nodejs.org first.
+**Stuck?** If the server says "port already in use", something else is using port 4000—close that app or change `PORT` in `server/.env`. If you see "command not found" for `node` or `npm`, install Node from nodejs.org first. If registration says the email or username is already in use, sign in with that account or pick a different email or username.
 
 ### Later (when everything is already set up)
 

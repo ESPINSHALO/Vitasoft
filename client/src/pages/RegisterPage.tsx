@@ -65,12 +65,33 @@ export const RegisterPage = () => {
 
     try {
       setIsSubmitting(true);
-      await api.post('/api/auth/register', { username: username.trim(), email, password });
+      await api.post('/api/auth/register', {
+        username: username.trim(),
+        email: String(email).trim().toLowerCase(),
+        password,
+      });
       toast.success('Account created. Sign in to continue.');
       navigate('/login');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setError(msg || 'Registration failed. Try a different email or username.');
+      let msg = '';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const res = (err as { response?: { data?: unknown; status?: number } }).response;
+        const data = res?.data;
+        if (data && typeof data === 'object' && data !== null && 'message' in data && typeof (data as { message: unknown }).message === 'string') {
+          msg = (data as { message: string }).message;
+        } else if (typeof data === 'string') {
+          msg = data;
+        }
+      }
+      if (!msg) {
+        msg = (err && typeof err === 'object' && 'message' in err && typeof (err as { message: unknown }).message === 'string')
+          ? (err as { message: string }).message
+          : 'Registration failed. Try a different email or username.';
+        if (err && typeof err === 'object' && !('response' in err)) {
+          msg = 'Cannot reach server. Make sure the backend is running.';
+        }
+      }
+      setError(msg);
       toast.error('Registration failed');
     } finally {
       setIsSubmitting(false);
