@@ -41,7 +41,7 @@ I designed it with a clean split between the frontend and backend, making it eas
 - **Expandable details** – click any activity row to expand it. You’ll see the task title, description (if it had one), due date, completion status, the action that was performed, and the exact time it happened. Handy for checking what changed and when. The app stores a snapshot of the task at the time of the action, so you still see full details even for tasks that were later deleted.
 
 ### User Interface
-- **Profile page** – click your avatar in the top-right corner to open your profile. See your username and email, and update your password when needed. Profile is only available from the avatar; the sidebar stays focused on Tasks, Activity, and Overview.
+- **Profile page** – click your avatar in the top-right to open your profile. You’ll see your username and email, a section to update your password, and a log out button at the bottom. Profile is only available from the avatar; the sidebar stays focused on Tasks, Activity, and Overview.
 - **Password visibility toggles** – on Login, Signup, and the Profile change-password form, you can toggle an eye icon to show or hide what you type. No more guessing whether you entered the right password.
 - **Due task notification** – a bell icon in the header shows how many tasks are overdue, due today, or due in the next 48 hours. Click it to open a dropdown with those tasks grouped so you can see what needs attention without opening the Tasks page.
 - **Clear all notifications** – in the due-task dropdown, a “Clear” button lets you dismiss all current notifications at once. The badge disappears until new urgent tasks appear.
